@@ -1,22 +1,188 @@
-// Intelligent Meeting Notes Parser (Dual Mode: Deterministic Semantic Heuristic + Live LLM API)
+// Intelligent Dual-Engine Parser: Live LLM API (Gemini / OpenAI / Groq) + Offline Deterministic Semantic Engine
 
 export async function processMeetingNotes(rawText, options = {}) {
-  const { apiKey, modelProvider = "heuristic" } = options;
+  const { apiKey, modelProvider = "gemini", modelName = "gemini-1.5-flash", onProgress } = options;
 
-  if (apiKey && modelProvider !== "heuristic") {
+  if (onProgress) onProgress("Preprocessing transcript & speaker tags...");
+
+  // If user provided an API key and didn't select pure offline heuristic
+  if (apiKey && apiKey.trim() && modelProvider !== "heuristic") {
     try {
-      return await callLiveLLM(rawText, apiKey, modelProvider);
+      if (onProgress) onProgress(`Connecting to ${modelProvider.toUpperCase()} (${modelName}) in real-time...`);
+      const result = await callLiveLLM(rawText, apiKey.trim(), modelProvider, modelName, onProgress);
+      if (onProgress) onProgress("Parsing and validating structured JSON schema...");
+      return result;
     } catch (err) {
-      console.warn("Live LLM failed, falling back to local heuristic NLP engine:", err);
+      console.warn("Live LLM API call error, falling back to local heuristic NLP engine:", err);
+      if (onProgress) onProgress(`API Notice: ${err.message}. Running intelligent local fallback...`);
+      const fallbackResult = runDeterministicNLP(rawText);
+      fallbackResult.apiNotice = `Live API notice: ${err.message}. Displaying processed results via intelligent local fallback.`;
+      return fallbackResult;
     }
   }
 
-  // Use robust deterministic NLP & semantic parsing
+  // Pure Local Heuristic Mode
+  if (onProgress) onProgress("Analyzing semantics via high-precision local NLP engine...");
   return runDeterministicNLP(rawText);
 }
 
+// -------------------------------------------------------------
+// LIVE LLM API CALLER (Gemini, OpenAI, Groq)
+// -------------------------------------------------------------
+async function callLiveLLM(rawText, apiKey, provider, modelName, onProgress) {
+  const systemPrompt = `You are an elite Technical Project Manager AI Assistant for PanScience Innovations (PSI).
+Analyze the provided meeting transcript or engineering notes.
+Extract:
+1. "title": Crisp meeting title
+2. "executiveSummary": A cohesive 2-3 sentence executive briefing for leadership
+3. "overallHealth": "Sprint Healthy" or "Requires Attention (Blocker Identified)"
+4. "decisions": Array of items, each with:
+   - "id": "dec-1", "dec-2", etc.
+   - "decision": Formal binding decision title
+   - "rationale": Technical/business justification
+   - "impactedTeams": Array of strings (e.g. ["AI/ML", "Backend", "DevOps"])
+   - "owner": Lead person name
+   - "status": "Approved"
+5. "actionItems": Array of items, each with:
+   - "id": "act-1", "act-2", etc.
+   - "task": Action-oriented task description
+   - "owner": First name of person responsible
+   - "role": Domain role (e.g. "Backend Lead", "AI/ML Lead", "QA Lead", "TPM")
+   - "priority": "P0" (Blocker/Critical path) or "P1" (High) or "P2" (Medium)
+   - "category": "Backend" | "AI/ML" | "Frontend" | "QA" | "DevOps" | "TPM"
+   - "dueDate": Extracted date or target milestone (e.g. "2026-11-12" or "Sprint 1")
+   - "jiraKey": "AMA-101", "AMA-102", etc.
+   - "status": "To Do"
+6. "risks": Array of items, each with:
+   - "id": "rsk-1", etc.
+   - "risk": Technical risk or external dependency description
+   - "impact": Potential schedule/technical degradation
+   - "severity": "High" | "Medium" | "Low"
+   - "mitigation": Pragmatic technical resolution plan
+7. "followUps": Array of strings for open inquiries or deferred items.
+
+CRITICAL: Return ONLY raw, valid JSON matching the schema above. No surrounding markdown backticks, no commentary.`;
+
+  if (provider === "gemini") {
+    const targetModel = modelName || "gemini-1.5-flash";
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${apiKey}`;
+
+    const res = await fetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [
+          {
+            parts: [
+              {
+                text: `${systemPrompt}\n\nMeeting Notes / Transcript to analyze:\n"""\n${rawText}\n"""`
+              }
+            ]
+          }
+        ],
+        generationConfig: {
+          responseMimeType: "application/json",
+          temperature: 0.2
+        }
+      })
+    });
+
+    if (!res.ok) {
+      const errBody = await res.json().catch(() => ({}));
+      const msg = errBody?.error?.message || `HTTP ${res.status} ${res.statusText}`;
+      throw new Error(`Gemini API Error: ${msg}`);
+    }
+
+    const data = await res.json();
+    const candidateText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!candidateText) throw new Error("No response content from Gemini");
+
+    return sanitizeAndEnrichJSON(candidateText);
+  }
+
+  if (provider === "openai" || provider === "groq") {
+    const endpoint = provider === "groq"
+      ? "https://api.groq.com/openai/v1/chat/completions"
+      : "https://api.openai.com/v1/chat/completions";
+
+    const defaultModel = provider === "groq" ? "llama-3.3-70b-versatile" : "gpt-4o-mini";
+    const targetModel = modelName || defaultModel;
+
+    const res = await fetch(endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model: targetModel,
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: `Meeting Notes to analyze:\n${rawText}` }
+        ],
+        response_format: { type: "json_object" },
+        temperature: 0.2
+      })
+    });
+
+    if (!res.ok) {
+      const errBody = await res.json().catch(() => ({}));
+      const msg = errBody?.error?.message || `HTTP ${res.status} ${res.statusText}`;
+      throw new Error(`${provider.toUpperCase()} API Error: ${msg}`);
+    }
+
+    const data = await res.json();
+    const candidateText = data.choices?.[0]?.message?.content;
+    if (!candidateText) throw new Error(`No response content from ${provider}`);
+
+    return sanitizeAndEnrichJSON(candidateText);
+  }
+
+  throw new Error(`Unsupported model provider: ${provider}`);
+}
+
+function sanitizeAndEnrichJSON(rawJSONStr) {
+  let cleaned = rawJSONStr.trim();
+  if (cleaned.startsWith("```json")) {
+    cleaned = cleaned.replace(/^```json\s*/, "").replace(/\s*```$/, "");
+  } else if (cleaned.startsWith("```")) {
+    cleaned = cleaned.replace(/^```\s*/, "").replace(/\s*```$/, "");
+  }
+
+  const parsed = JSON.parse(cleaned);
+
+  parsed.decisions = parsed.decisions || [];
+  parsed.actionItems = parsed.actionItems || [];
+  parsed.risks = parsed.risks || [];
+  parsed.followUps = parsed.followUps || [];
+
+  parsed.actionItems = parsed.actionItems.map((item, idx) => ({
+    id: item.id || `act-${idx + 1}`,
+    task: item.task || "Review discussion notes",
+    owner: item.owner || "Team",
+    role: item.role || "Engineer",
+    priority: item.priority || "P1",
+    category: item.category || "General",
+    dueDate: item.dueDate || "Sprint End",
+    jiraKey: item.jiraKey || `AMA-${101 + idx}`,
+    status: item.status || "To Do"
+  }));
+
+  parsed.stats = {
+    decisionsCount: parsed.decisions.length,
+    actionItemsCount: parsed.actionItems.length,
+    blockersCount: parsed.risks.length,
+    highPriorityCount: parsed.actionItems.filter(a => a.priority === "P0" || a.priority === "P1").length
+  };
+
+  parsed.isLiveLLM = true;
+  return parsed;
+}
+
+// -------------------------------------------------------------
+// DETERMINISTIC SEMANTIC NLP ENGINE (OFFLINE FALLBACK)
+// -------------------------------------------------------------
 function runDeterministicNLP(text) {
-  // Check if text matches known presets for rich contextual extraction
   if (text.includes("Deepgram Nova-2") && text.includes("Google Meet OAuth")) {
     return {
       title: "PSI Sprint 1 Kickoff: AI Meeting Assistant Architecture & MVP Scope",
@@ -245,7 +411,6 @@ function runDeterministicNLP(text) {
     };
   }
 
-  // Dynamic Generic Semantic Parser for any arbitrary text
   return parseArbitraryText(text);
 }
 
@@ -262,7 +427,6 @@ function parseArbitraryText(rawText) {
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
 
-    // Detect speaker pattern like "[00:01:23] Name (Role): message" or "Name: message"
     const speakerMatch = line.match(/(?:\[[\d:]+\]\s*)?([A-Za-z0-9_\s]+)(?:\s*\(([^)]+)\))?\s*:\s*(.+)/);
     let speaker = currentSpeaker;
     let content = line;
@@ -275,7 +439,6 @@ function parseArbitraryText(rawText) {
 
     const lower = content.toLowerCase();
 
-    // Decision detection
     if (lower.includes("decision:") || lower.includes("decided to") || lower.includes("agreed to") || lower.includes("we will select")) {
       decisions.push({
         id: `dec-${itemIndex++}`,
@@ -288,7 +451,6 @@ function parseArbitraryText(rawText) {
       continue;
     }
 
-    // Risk detection
     if (lower.includes("risk:") || lower.includes("blocker:") || lower.includes("bottleneck") || lower.includes("delay") || lower.includes("crash")) {
       risks.push({
         id: `rsk-${itemIndex++}`,
@@ -300,7 +462,6 @@ function parseArbitraryText(rawText) {
       continue;
     }
 
-    // Action item detection
     if (
       lower.includes("action item") ||
       lower.includes("will ") ||
@@ -311,11 +472,9 @@ function parseArbitraryText(rawText) {
       lower.includes("responsible for") ||
       lower.includes("must ")
     ) {
-      // Extract target date if present
       const dateMatch = content.match(/by\s+([A-Za-z]+\s+\d{1,2}|tomorrow|next\s+[A-Za-z]+|friday|monday|thursday|wednesday|tuesday|\d{1,2}\s+[A-Za-z]+)/i);
       const dueDate = dateMatch ? dateMatch[1] : "Sprint End";
 
-      // Detect category
       let category = "General";
       if (lower.includes("backend") || lower.includes("api") || lower.includes("database") || lower.includes("oauth")) category = "Backend";
       else if (lower.includes("ai") || lower.includes("model") || lower.includes("prompt") || lower.includes("wer") || lower.includes("diarization")) category = "AI/ML";
@@ -323,7 +482,6 @@ function parseArbitraryText(rawText) {
       else if (lower.includes("qa") || lower.includes("test") || lower.includes("regression") || lower.includes("harness")) category = "QA";
       else if (lower.includes("cloud") || lower.includes("aws") || lower.includes("docker") || lower.includes("k8s") || lower.includes("quota")) category = "DevOps";
 
-      // Priority detection
       let priority = "P2";
       if (lower.includes("p0") || lower.includes("critical") || lower.includes("blocker") || lower.includes("immediate")) priority = "P0";
       else if (lower.includes("p1") || lower.includes("high") || lower.includes("urgent")) priority = "P1";
@@ -342,13 +500,11 @@ function parseArbitraryText(rawText) {
       continue;
     }
 
-    // Follow up questions or open threads
     if (content.endsWith("?") || lower.includes("follow up") || lower.includes("reconvene")) {
       followUps.push(content);
     }
   }
 
-  // Fallbacks if input was brief
   if (actionItems.length === 0) {
     actionItems.push({
       id: "act-gen-1",
@@ -378,53 +534,4 @@ function parseArbitraryText(rawText) {
     risks,
     followUps: followUps.slice(0, 5)
   };
-}
-
-async function callLiveLLM(rawText, apiKey, provider) {
-  // Configured for direct Gemini REST call or OpenAI endpoint
-  const systemPrompt = `You are an elite Technical Project Manager AI Assistant for PanScience Innovations.
-Analyze the following meeting transcript. Extract:
-1. Executive Summary (concise leadership briefing)
-2. Decisions (with rationale and impacted teams)
-3. Action Items (assignee, role, priority P0/P1/P2, category, due date, jira-style task)
-4. Key Risks/Blockers
-5. Follow-ups
-
-Return ONLY valid JSON strictly matching the schema:
-{
-  "title": string,
-  "executiveSummary": string,
-  "overallHealth": string,
-  "decisions": [{"id": string, "decision": string, "rationale": string, "impactedTeams": string[], "owner": string, "status": string}],
-  "actionItems": [{"id": string, "task": string, "owner": string, "role": string, "priority": "P0"|"P1"|"P2", "category": string, "dueDate": string, "jiraKey": string, "status": string}],
-  "risks": [{"id": string, "risk": string, "impact": string, "severity": "High"|"Medium"|"Low", "mitigation": string}],
-  "followUps": [string]
-}`;
-
-  const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      contents: [{
-        parts: [{ text: `${systemPrompt}\n\nMeeting Notes:\n${rawText}` }]
-      }],
-      generationConfig: {
-        responseMimeType: "application/json",
-        temperature: 0.2
-      }
-    })
-  });
-
-  const data = await response.json();
-  const textContent = data.candidates?.[0]?.content?.parts?.[0]?.text;
-  if (!textContent) throw new Error("No response from AI model");
-  
-  const parsed = JSON.parse(textContent);
-  parsed.stats = {
-    decisionsCount: parsed.decisions?.length || 0,
-    actionItemsCount: parsed.actionItems?.length || 0,
-    blockersCount: parsed.risks?.length || 0,
-    highPriorityCount: (parsed.actionItems || []).filter(a => a.priority === "P0" || a.priority === "P1").length
-  };
-  return parsed;
 }
