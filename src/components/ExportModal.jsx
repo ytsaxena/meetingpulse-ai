@@ -37,7 +37,7 @@ ${decisions.map(d => `• *${d.decision}* (Lead: @${d.owner.split(' ')[0]}) — 
 ${actionItems.map(a => `• [${a.priority}] *${a.task}* → @${a.owner} (Due: ${a.dueDate}) [${a.jiraKey}]`).join('\n')}
 
 ${risks.length > 0 ? `*⚠️ Blockers & Risks Flagged:*\n${risks.map(r => `• *${r.risk}* (${r.severity}): ${r.mitigation}`).join('\n')}\n` : ''}
-*🔗 Next Steps:* Check Confluence / Jira board for task tracking.`;
+*🔗 Next Steps:* Check ClickUp / Jira board for task tracking.`;
   };
 
   // Generate Confluence Markdown
@@ -86,7 +86,7 @@ ${followUps.map(f => `- ${f}`).join('\n')}
   };
 
   const handleExcelExport = () => {
-    exportToExcel(data, `PSI_Meeting_Assistant_${new Date().toISOString().split('T')[0]}.xlsx`);
+    exportToExcel(data, `MeetingPulse_Export_${new Date().toISOString().split('T')[0]}.xlsx`);
   };
 
   let displayContent = '';
@@ -96,33 +96,33 @@ ${followUps.map(f => `- ${f}`).join('\n')}
   else if (activeFormat === 'json') displayContent = JSON.stringify(data, null, 2);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fadeIn">
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0e0f12]/80 backdrop-blur-sm animate-fadeIn">
+      <div className="bg-[#1a1c23] border border-[#2b2d38] rounded-2xl w-full max-w-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-slate-800 flex items-center justify-between bg-slate-950/50">
+        <div className="px-6 py-4 border-b border-[#2b2d38] flex items-center justify-between bg-[#131418]">
           <div className="flex items-center space-x-2">
-            <Download className="w-5 h-5 text-emerald-400" />
+            <Download className="w-5 h-5 text-violet-400" />
             <h3 className="font-bold text-base text-white">Export Meeting Artifacts</h3>
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-[#252834] transition"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Format Selector */}
-        <div className="flex border-b border-slate-800 bg-slate-950/30 px-6 pt-3 gap-2 overflow-x-auto">
+        <div className="flex border-b border-[#2b2d38] bg-[#131418]/60 px-6 pt-3 gap-2 overflow-x-auto">
           <button
             onClick={() => setActiveFormat('excel')}
             className={`pb-3 px-3 text-xs font-semibold flex items-center gap-1.5 border-b-2 transition whitespace-nowrap ${
               activeFormat === 'excel'
-                ? 'border-emerald-500 text-emerald-400'
+                ? 'border-violet-500 text-violet-400'
                 : 'border-transparent text-slate-400 hover:text-slate-200'
             }`}
           >
-            <FileSpreadsheet className="w-4 h-4 text-emerald-400" />
+            <FileSpreadsheet className="w-4 h-4 text-violet-400" />
             <span>Excel Workbook (.xlsx)</span>
           </button>
 
@@ -130,7 +130,7 @@ ${followUps.map(f => `- ${f}`).join('\n')}
             onClick={() => setActiveFormat('jira')}
             className={`pb-3 px-3 text-xs font-semibold flex items-center gap-1.5 border-b-2 transition whitespace-nowrap ${
               activeFormat === 'jira'
-                ? 'border-emerald-500 text-emerald-400'
+                ? 'border-violet-500 text-violet-400'
                 : 'border-transparent text-slate-400 hover:text-slate-200'
             }`}
           >
@@ -142,7 +142,7 @@ ${followUps.map(f => `- ${f}`).join('\n')}
             onClick={() => setActiveFormat('slack')}
             className={`pb-3 px-3 text-xs font-semibold flex items-center gap-1.5 border-b-2 transition whitespace-nowrap ${
               activeFormat === 'slack'
-                ? 'border-emerald-500 text-emerald-400'
+                ? 'border-violet-500 text-violet-400'
                 : 'border-transparent text-slate-400 hover:text-slate-200'
             }`}
           >
@@ -154,7 +154,7 @@ ${followUps.map(f => `- ${f}`).join('\n')}
             onClick={() => setActiveFormat('markdown')}
             className={`pb-3 px-3 text-xs font-semibold flex items-center gap-1.5 border-b-2 transition whitespace-nowrap ${
               activeFormat === 'markdown'
-                ? 'border-emerald-500 text-emerald-400'
+                ? 'border-violet-500 text-violet-400'
                 : 'border-transparent text-slate-400 hover:text-slate-200'
             }`}
           >
@@ -166,7 +166,7 @@ ${followUps.map(f => `- ${f}`).join('\n')}
             onClick={() => setActiveFormat('json')}
             className={`pb-3 px-3 text-xs font-semibold flex items-center gap-1.5 border-b-2 transition whitespace-nowrap ${
               activeFormat === 'json'
-                ? 'border-emerald-500 text-emerald-400'
+                ? 'border-violet-500 text-violet-400'
                 : 'border-transparent text-slate-400 hover:text-slate-200'
             }`}
           >
@@ -179,29 +179,29 @@ ${followUps.map(f => `- ${f}`).join('\n')}
         <div className="p-6 flex-1 overflow-y-auto">
           {activeFormat === 'excel' ? (
             <div className="space-y-4">
-              <div className="p-4 bg-emerald-500/10 border border-emerald-500/30 rounded-xl space-y-2">
-                <div className="flex items-center gap-2 text-emerald-400 font-bold text-sm">
+              <div className="p-4 bg-violet-600/10 border border-violet-500/30 rounded-xl space-y-2">
+                <div className="flex items-center gap-2 text-violet-400 font-bold text-sm">
                   <FileSpreadsheet className="w-5 h-5" />
                   <span>Native Microsoft Excel Workbook (.xlsx)</span>
                 </div>
                 <p className="text-xs text-slate-300 leading-relaxed">
-                  Generates an organized, multi-tab Excel file with dedicated sheets formatted for executive review and sprint management:
+                  Generates an organized, multi-tab Excel file formatted for executive review and sprint management:
                 </p>
                 <div className="grid grid-cols-2 gap-2 pt-2 text-xs">
-                  <div className="p-2 bg-slate-900/80 rounded border border-slate-800">
-                    <span className="font-semibold text-emerald-400">Sheet 1: Action Items</span>
+                  <div className="p-2.5 bg-[#131418] rounded-lg border border-[#2b2d38]">
+                    <span className="font-semibold text-violet-400">Sheet 1: Action Items</span>
                     <p className="text-[11px] text-slate-400 mt-0.5">{actionItems.length} tasks with priority, owner, due date & Jira keys.</p>
                   </div>
-                  <div className="p-2 bg-slate-900/80 rounded border border-slate-800">
-                    <span className="font-semibold text-amber-400">Sheet 2: Decisions Log</span>
+                  <div className="p-2.5 bg-[#131418] rounded-lg border border-[#2b2d38]">
+                    <span className="font-semibold text-fuchsia-400">Sheet 2: Decisions Log</span>
                     <p className="text-[11px] text-slate-400 mt-0.5">{decisions.length} architectural choices with rationale & workstream impact.</p>
                   </div>
-                  <div className="p-2 bg-slate-900/80 rounded border border-slate-800">
+                  <div className="p-2.5 bg-[#131418] rounded-lg border border-[#2b2d38]">
                     <span className="font-semibold text-rose-400">Sheet 3: Risks & Blockers</span>
                     <p className="text-[11px] text-slate-400 mt-0.5">{risks.length} flagged operational risks with mitigations.</p>
                   </div>
-                  <div className="p-2 bg-slate-900/80 rounded border border-slate-800">
-                    <span className="font-semibold text-cyan-400">Sheet 4: Executive Summary</span>
+                  <div className="p-2.5 bg-[#131418] rounded-lg border border-[#2b2d38]">
+                    <span className="font-semibold text-emerald-400">Sheet 4: Executive Summary</span>
                     <p className="text-[11px] text-slate-400 mt-0.5">Project health status, date, and leadership synthesis.</p>
                   </div>
                 </div>
@@ -210,7 +210,7 @@ ${followUps.map(f => `- ${f}`).join('\n')}
               <div className="text-center py-4">
                 <button
                   onClick={handleExcelExport}
-                  className="px-6 py-3 rounded-xl text-sm font-bold bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 flex items-center gap-2 mx-auto transition shadow-lg shadow-emerald-500/25"
+                  className="px-6 py-3 rounded-xl text-sm font-bold bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 hover:from-violet-500 hover:via-purple-500 hover:to-fuchsia-500 text-white flex items-center gap-2 mx-auto transition shadow-lg shadow-purple-500/25"
                 >
                   <Download className="w-5 h-5" />
                   <span>Download Complete Excel Workbook (.xlsx)</span>
@@ -218,14 +218,14 @@ ${followUps.map(f => `- ${f}`).join('\n')}
               </div>
             </div>
           ) : (
-            <pre className="p-4 bg-slate-950 rounded-xl border border-slate-800 text-xs text-slate-300 font-mono overflow-x-auto whitespace-pre leading-relaxed max-h-80">
+            <pre className="p-4 bg-[#0e0f12] rounded-xl border border-[#2b2d38] text-xs text-slate-300 font-mono overflow-x-auto whitespace-pre leading-relaxed max-h-80">
               {displayContent}
             </pre>
           )}
         </div>
 
         {/* Footer Actions */}
-        <div className="px-6 py-4 border-t border-slate-800 bg-slate-950/50 flex items-center justify-between">
+        <div className="px-6 py-4 border-t border-[#2b2d38] bg-[#131418] flex items-center justify-between">
           <span className="text-xs text-slate-400">
             {activeFormat === 'excel' && 'Compatible with Microsoft Excel, Google Sheets, & Apple Numbers'}
             {activeFormat === 'jira' && 'Ready for Jira -> Project Settings -> Import CSV'}
@@ -238,9 +238,9 @@ ${followUps.map(f => `- ${f}`).join('\n')}
             {activeFormat !== 'excel' && (
               <button
                 onClick={() => handleCopy(displayContent)}
-                className="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center gap-1.5 transition"
+                className="px-4 py-2 rounded-xl text-xs font-semibold bg-[#252834] hover:bg-[#2b2d38] text-slate-200 border border-[#2b2d38] flex items-center gap-1.5 transition"
               >
-                {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+                {copied ? <Check className="w-4 h-4 text-violet-400" /> : <Copy className="w-4 h-4" />}
                 <span>{copied ? 'Copied!' : 'Copy to Clipboard'}</span>
               </button>
             )}
@@ -248,7 +248,7 @@ ${followUps.map(f => `- ${f}`).join('\n')}
             {activeFormat === 'excel' && (
               <button
                 onClick={handleExcelExport}
-                className="px-4 py-2 rounded-xl text-xs font-bold bg-emerald-500 hover:bg-emerald-400 text-slate-950 flex items-center gap-1.5 transition shadow-lg shadow-emerald-500/20"
+                className="px-4 py-2 rounded-xl text-xs font-bold bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-white flex items-center gap-1.5 transition shadow-md shadow-purple-500/20"
               >
                 <Download className="w-4 h-4" />
                 <span>Export .XLSX</span>
@@ -258,7 +258,7 @@ ${followUps.map(f => `- ${f}`).join('\n')}
             {activeFormat === 'jira' && (
               <button
                 onClick={() => handleDownload('jira-tasks-export.csv', displayContent, 'text/csv')}
-                className="px-4 py-2 rounded-xl text-xs font-bold bg-emerald-500 hover:bg-emerald-400 text-slate-950 flex items-center gap-1.5 transition shadow-lg shadow-emerald-500/20"
+                className="px-4 py-2 rounded-xl text-xs font-bold bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-white flex items-center gap-1.5 transition shadow-md shadow-purple-500/20"
               >
                 <Download className="w-4 h-4" />
                 <span>Download CSV</span>
@@ -268,7 +268,7 @@ ${followUps.map(f => `- ${f}`).join('\n')}
             {activeFormat === 'markdown' && (
               <button
                 onClick={() => handleDownload('meeting-minutes.md', displayContent, 'text/markdown')}
-                className="px-4 py-2 rounded-xl text-xs font-bold bg-emerald-500 hover:bg-emerald-400 text-slate-950 flex items-center gap-1.5 transition shadow-lg shadow-emerald-500/20"
+                className="px-4 py-2 rounded-xl text-xs font-bold bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-white flex items-center gap-1.5 transition shadow-md shadow-purple-500/20"
               >
                 <Download className="w-4 h-4" />
                 <span>Download .MD</span>

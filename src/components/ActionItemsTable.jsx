@@ -80,45 +80,47 @@ export default function ActionItemsTable({ actionItems, setActionItems, fullData
   const getPriorityBadge = (p) => {
     switch (p) {
       case 'P0':
-        return 'bg-rose-500/10 text-rose-400 border border-rose-500/30';
+        return 'bg-rose-500/15 text-rose-400 border border-rose-500/30';
       case 'P1':
-        return 'bg-amber-500/10 text-amber-400 border border-amber-500/30';
+        return 'bg-amber-500/15 text-amber-400 border border-amber-500/30';
       case 'P2':
-        return 'bg-blue-500/10 text-blue-400 border border-blue-500/30';
+        return 'bg-blue-500/15 text-blue-400 border border-blue-500/30';
       default:
-        return 'bg-slate-700/50 text-slate-300 border border-slate-600';
+        return 'bg-slate-800 text-slate-300 border border-[#2b2d38]';
     }
   };
 
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
+    <div className="bg-[#1a1c23] border border-[#2b2d38] rounded-2xl p-5 shadow-xl space-y-4">
       {/* Header and Filters */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-3 border-b border-slate-800">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-3 border-b border-[#2b2d38]">
         <div>
           <div className="flex items-center gap-2">
             <h3 className="text-base font-bold text-white flex items-center gap-2">
-              <CheckSquare className="w-5 h-5 text-emerald-400" />
-              Extracted Action Items & Sprint Tasks
+              <CheckSquare className="w-5 h-5 text-violet-400" />
+              Action Items & Sprint Tasks
             </h3>
-            <span className="px-2 py-0.5 text-xs rounded-full bg-slate-800 text-slate-300 font-mono font-medium">
+            <span className="px-2 py-0.5 text-xs rounded-full bg-[#131418] text-violet-300 border border-[#2b2d38] font-mono font-medium">
               {filteredItems.length} of {actionItems.length}
             </span>
           </div>
           <p className="text-xs text-slate-400 mt-0.5">
-            Auto-assigned owners, due dates, Jira keys, and cross-functional workstreams.
+            ClickUp task list with auto-assigned owners, due dates, Jira keys, and cross-functional workstreams.
           </p>
         </div>
 
         {/* Filter Controls & Excel Button */}
         <div className="flex items-center flex-wrap gap-2">
           {/* Priority filter */}
-          <div className="flex items-center space-x-1 bg-slate-950 p-1 rounded-lg border border-slate-800 text-xs">
+          <div className="flex items-center space-x-1 bg-[#0e0f12] p-1 rounded-lg border border-[#2b2d38] text-xs">
             {priorities.map(p => (
               <button
                 key={p}
                 onClick={() => setFilterPriority(p)}
                 className={`px-2 py-1 rounded font-medium transition ${
-                  filterPriority === p ? 'bg-slate-800 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200'
+                  filterPriority === p
+                    ? 'bg-violet-600/20 text-violet-300 border border-violet-500/40 shadow-sm'
+                    : 'text-slate-400 hover:text-slate-200 border border-transparent'
                 }`}
               >
                 {p}
@@ -129,7 +131,7 @@ export default function ActionItemsTable({ actionItems, setActionItems, fullData
           {/* Quick Excel Export */}
           <button
             onClick={handleQuickExcel}
-            className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5 transition"
+            className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-violet-600/15 hover:bg-violet-600/25 text-violet-300 border border-violet-500/30 flex items-center gap-1.5 transition"
             title="Download formatted Excel (.xlsx) file"
           >
             <FileSpreadsheet className="w-3.5 h-3.5" />
@@ -139,48 +141,48 @@ export default function ActionItemsTable({ actionItems, setActionItems, fullData
           {/* Add button */}
           <button
             onClick={() => setIsAddingNew(!isAddingNew)}
-            className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center gap-1 transition"
+            className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#252834] hover:bg-[#2b2d38] text-slate-200 border border-[#2b2d38] flex items-center gap-1 transition"
           >
-            <Plus className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Add Item</span>
+            <Plus className="w-3.5 h-3.5 text-violet-400" />
+            <span>Add Task</span>
           </button>
         </div>
       </div>
 
       {/* Add New Item Drawer */}
       {isAddingNew && (
-        <form onSubmit={handleAddNew} className="p-4 bg-slate-950/90 border border-slate-800 rounded-xl space-y-3">
-          <div className="text-xs font-semibold text-emerald-400 uppercase tracking-wider">Add Manual Action Item</div>
+        <form onSubmit={handleAddNew} className="p-4 bg-[#131418] border border-[#2b2d38] rounded-xl space-y-3">
+          <div className="text-xs font-semibold text-violet-400 uppercase tracking-wider">Add New Task</div>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-2.5">
             <input
               type="text"
               required
-              placeholder="Action item task description..."
+              placeholder="Task description..."
               value={newTask.task}
               onChange={(e) => setNewTask({ ...newTask, task: e.target.value })}
-              className="md:col-span-2 bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+              className="md:col-span-2 bg-[#0e0f12] border border-[#2b2d38] rounded-lg px-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-violet-500"
             />
             <input
               type="text"
               placeholder="Assignee (e.g. Alex)"
               value={newTask.owner}
               onChange={(e) => setNewTask({ ...newTask, owner: e.target.value })}
-              className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+              className="bg-[#0e0f12] border border-[#2b2d38] rounded-lg px-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-violet-500"
             />
             <div className="flex gap-2">
               <select
                 value={newTask.priority}
                 onChange={(e) => setNewTask({ ...newTask, priority: e.target.value })}
-                className="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500"
+                className="bg-[#0e0f12] border border-[#2b2d38] rounded-lg px-2 py-1.5 text-xs text-white focus:outline-none focus:border-violet-500"
               >
                 <option value="P0">P0 (Blocker)</option>
-                <option value="P1">P1 (High)</option>
-                <option value="P2">P2 (Medium)</option>
+                <option value="P1">P1 (Urgent)</option>
+                <option value="P2">P2 (Normal)</option>
               </select>
               <select
                 value={newTask.category}
                 onChange={(e) => setNewTask({ ...newTask, category: e.target.value })}
-                className="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500"
+                className="bg-[#0e0f12] border border-[#2b2d38] rounded-lg px-2 py-1.5 text-xs text-white focus:outline-none focus:border-violet-500"
               >
                 <option value="Backend">Backend</option>
                 <option value="AI/ML">AI/ML</option>
@@ -191,7 +193,7 @@ export default function ActionItemsTable({ actionItems, setActionItems, fullData
               </select>
               <button
                 type="submit"
-                className="px-3 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-lg text-xs"
+                className="px-3 py-1.5 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-white font-bold rounded-lg text-xs"
               >
                 Save
               </button>
@@ -201,21 +203,21 @@ export default function ActionItemsTable({ actionItems, setActionItems, fullData
       )}
 
       {/* Action Items Table */}
-      <div className="overflow-x-auto rounded-xl border border-slate-800">
+      <div className="overflow-x-auto rounded-xl border border-[#2b2d38]">
         <table className="w-full text-left text-xs">
-          <thead className="bg-slate-950/80 text-slate-400 font-semibold uppercase tracking-wider border-b border-slate-800">
+          <thead className="bg-[#131418] text-slate-400 font-semibold uppercase tracking-wider border-b border-[#2b2d38]">
             <tr>
-              <th className="py-3 px-3 w-10">Done</th>
-              <th className="py-3 px-3">Task Description</th>
-              <th className="py-3 px-3">Owner / Role</th>
+              <th className="py-3 px-3 w-10">Status</th>
+              <th className="py-3 px-3">Task Name</th>
+              <th className="py-3 px-3">Assignee</th>
               <th className="py-3 px-3">Priority</th>
-              <th className="py-3 px-3">Domain</th>
+              <th className="py-3 px-3">Space / List</th>
               <th className="py-3 px-3">Due Date</th>
               <th className="py-3 px-3">Jira Key</th>
               <th className="py-3 px-3 text-right">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-800/60 bg-slate-900/40">
+          <tbody className="divide-y divide-[#2b2d38]/60 bg-[#1a1c23]">
             {filteredItems.length === 0 ? (
               <tr>
                 <td colSpan={8} className="py-8 text-center text-slate-500">
@@ -228,12 +230,12 @@ export default function ActionItemsTable({ actionItems, setActionItems, fullData
                 return (
                   <tr
                     key={item.id}
-                    className={`hover:bg-slate-800/40 transition ${isDone ? 'opacity-50 line-through' : ''}`}
+                    className={`hover:bg-[#252834]/60 transition ${isDone ? 'opacity-40 line-through' : ''}`}
                   >
                     <td className="py-3 px-3">
                       <button
                         onClick={() => toggleStatus(item.id)}
-                        className="text-slate-400 hover:text-emerald-400 transition"
+                        className="text-slate-500 hover:text-violet-400 transition"
                       >
                         {isDone ? (
                           <CheckSquare className="w-4 h-4 text-emerald-400" />
@@ -249,7 +251,7 @@ export default function ActionItemsTable({ actionItems, setActionItems, fullData
 
                     <td className="py-3 px-3 whitespace-nowrap">
                       <div className="flex items-center space-x-1.5">
-                        <div className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-[10px] uppercase">
+                        <div className="w-5 h-5 rounded-full bg-violet-600/20 text-violet-300 border border-violet-500/30 flex items-center justify-center font-bold text-[10px] uppercase">
                           {item.owner.slice(0, 2)}
                         </div>
                         <div>
@@ -266,7 +268,7 @@ export default function ActionItemsTable({ actionItems, setActionItems, fullData
                     </td>
 
                     <td className="py-3 px-3 whitespace-nowrap">
-                      <span className="px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 text-[11px]">
+                      <span className="px-2 py-0.5 rounded bg-[#131418] text-slate-300 border border-[#2b2d38] text-[11px]">
                         {item.category}
                       </span>
                     </td>
@@ -278,7 +280,7 @@ export default function ActionItemsTable({ actionItems, setActionItems, fullData
                       </div>
                     </td>
 
-                    <td className="py-3 px-3 whitespace-nowrap font-mono font-semibold text-emerald-400">
+                    <td className="py-3 px-3 whitespace-nowrap font-mono font-semibold text-violet-400">
                       {item.jiraKey}
                     </td>
 
@@ -286,10 +288,10 @@ export default function ActionItemsTable({ actionItems, setActionItems, fullData
                       <button
                         onClick={() => copyToClipboard(`[${item.jiraKey}] ${item.task} (Owner: @${item.owner}, Due: ${item.dueDate})`, item.id)}
                         title="Copy formatted Jira ticket text"
-                        className="p-1 rounded hover:bg-slate-800 text-slate-400 hover:text-white transition"
+                        className="p-1 rounded hover:bg-[#252834] text-slate-400 hover:text-white transition"
                       >
                         {copiedId === item.id ? (
-                          <Check className="w-3.5 h-3.5 text-emerald-400" />
+                          <Check className="w-3.5 h-3.5 text-violet-400" />
                         ) : (
                           <Copy className="w-3.5 h-3.5" />
                         )}

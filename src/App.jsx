@@ -68,7 +68,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
+    <div className="min-h-screen bg-[#0e0f12] text-slate-100 flex flex-col font-sans">
       {/* Top Header */}
       <Navbar
         activeTab={activeTab}
@@ -92,20 +92,20 @@ export default function App() {
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <button
                   onClick={() => setResultsSection('actions')}
-                  className="bg-slate-900/80 hover:bg-slate-800/80 border border-slate-800 rounded-xl p-3.5 text-left transition flex items-center justify-between group"
+                  className="bg-[#1a1c23] hover:bg-[#252834] border border-[#2b2d38] rounded-xl p-3.5 text-left transition flex items-center justify-between group shadow-sm"
                 >
                   <div>
-                    <div className="text-[10px] uppercase font-bold text-slate-400 group-hover:text-emerald-400 transition">Action Items</div>
+                    <div className="text-[10px] uppercase font-bold text-slate-400 group-hover:text-violet-400 transition">Action Items</div>
                     <div className="text-xl font-black text-white mt-0.5">{data.actionItems?.length || 0}</div>
                   </div>
-                  <div className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-lg bg-violet-600/15 text-violet-400 border border-violet-500/20 flex items-center justify-center">
                     <CheckCircle2 className="w-4 h-4" />
                   </div>
                 </button>
 
                 <button
                   onClick={() => setResultsSection('actions')}
-                  className="bg-slate-900/80 hover:bg-slate-800/80 border border-slate-800 rounded-xl p-3.5 text-left transition flex items-center justify-between group"
+                  className="bg-[#1a1c23] hover:bg-[#252834] border border-[#2b2d38] rounded-xl p-3.5 text-left transition flex items-center justify-between group shadow-sm"
                 >
                   <div>
                     <div className="text-[10px] uppercase font-bold text-slate-400 group-hover:text-rose-400 transition">P0/P1 Blockers</div>
@@ -113,33 +113,33 @@ export default function App() {
                       {data.actionItems?.filter(a => a.priority === 'P0' || a.priority === 'P1').length || 0}
                     </div>
                   </div>
-                  <div className="w-8 h-8 rounded-lg bg-rose-500/10 text-rose-400 flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-lg bg-rose-500/15 text-rose-400 border border-rose-500/20 flex items-center justify-center">
                     <AlertOctagon className="w-4 h-4" />
                   </div>
                 </button>
 
                 <button
                   onClick={() => setResultsSection('decisions')}
-                  className="bg-slate-900/80 hover:bg-slate-800/80 border border-slate-800 rounded-xl p-3.5 text-left transition flex items-center justify-between group"
+                  className="bg-[#1a1c23] hover:bg-[#252834] border border-[#2b2d38] rounded-xl p-3.5 text-left transition flex items-center justify-between group shadow-sm"
                 >
                   <div>
-                    <div className="text-[10px] uppercase font-bold text-slate-400 group-hover:text-amber-400 transition">Key Decisions</div>
-                    <div className="text-xl font-black text-amber-400 mt-0.5">{data.decisions?.length || 0}</div>
+                    <div className="text-[10px] uppercase font-bold text-slate-400 group-hover:text-fuchsia-400 transition">Key Decisions</div>
+                    <div className="text-xl font-black text-fuchsia-400 mt-0.5">{data.decisions?.length || 0}</div>
                   </div>
-                  <div className="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-lg bg-fuchsia-500/15 text-fuchsia-400 border border-fuchsia-500/20 flex items-center justify-center">
                     <Layers className="w-4 h-4" />
                   </div>
                 </button>
 
                 <button
                   onClick={() => setResultsSection('risks')}
-                  className="bg-slate-900/80 hover:bg-slate-800/80 border border-slate-800 rounded-xl p-3.5 text-left transition flex items-center justify-between group"
+                  className="bg-[#1a1c23] hover:bg-[#252834] border border-[#2b2d38] rounded-xl p-3.5 text-left transition flex items-center justify-between group shadow-sm"
                 >
                   <div>
-                    <div className="text-[10px] uppercase font-bold text-slate-400 group-hover:text-cyan-400 transition">Technical Risks</div>
-                    <div className="text-xl font-black text-cyan-400 mt-0.5">{data.risks?.length || 0}</div>
+                    <div className="text-[10px] uppercase font-bold text-slate-400 group-hover:text-amber-400 transition">Technical Risks</div>
+                    <div className="text-xl font-black text-amber-400 mt-0.5">{data.risks?.length || 0}</div>
                   </div>
-                  <div className="w-8 h-8 rounded-lg bg-cyan-500/10 text-cyan-400 flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-lg bg-amber-500/15 text-amber-400 border border-amber-500/20 flex items-center justify-center">
                     <ShieldAlert className="w-4 h-4" />
                   </div>
                 </button>
@@ -161,22 +161,22 @@ export default function App() {
 
             {/* Notice if API fallback occurred */}
             {data?.apiNotice && (
-              <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-xl text-xs text-amber-300 flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-amber-400 shrink-0" />
+              <div className="p-3 bg-violet-600/10 border border-violet-500/30 rounded-xl text-xs text-violet-300 flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-violet-400 shrink-0" />
                 <span>{data.apiNotice}</span>
               </div>
             )}
 
-            {/* Section Switcher Tabs (Simple, Clean, Intuitive Navigation) */}
+            {/* Section Switcher Tabs (Simple, Clean ClickUp 3.0 Navigation) */}
             {data && (
-              <div className="flex items-center justify-between border-b border-slate-800 pb-2 pt-1 overflow-x-auto">
-                <div className="flex items-center space-x-1">
+              <div className="flex items-center justify-between border-b border-[#2b2d38] pb-2 pt-1 overflow-x-auto">
+                <div className="flex items-center space-x-1.5">
                   <button
                     onClick={() => setResultsSection('all')}
                     className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition ${
                       resultsSection === 'all'
-                        ? 'bg-slate-800 text-white border border-slate-700 shadow-sm'
-                        : 'text-slate-400 hover:text-slate-200'
+                        ? 'bg-violet-600/20 text-violet-300 border border-violet-500/40 shadow-sm'
+                        : 'text-slate-400 hover:text-slate-200 hover:bg-[#1a1c23] border border-transparent'
                     }`}
                   >
                     <LayoutGrid className="w-3.5 h-3.5" />
@@ -187,11 +187,11 @@ export default function App() {
                     onClick={() => setResultsSection('actions')}
                     className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition ${
                       resultsSection === 'actions'
-                        ? 'bg-slate-800 text-emerald-400 border border-slate-700 shadow-sm'
-                        : 'text-slate-400 hover:text-slate-200'
+                        ? 'bg-violet-600/20 text-violet-300 border border-violet-500/40 shadow-sm'
+                        : 'text-slate-400 hover:text-slate-200 hover:bg-[#1a1c23] border border-transparent'
                     }`}
                   >
-                    <CheckSquare className="w-3.5 h-3.5" />
+                    <CheckSquare className="w-3.5 h-3.5 text-violet-400" />
                     <span>Action Items ({data.actionItems?.length || 0})</span>
                   </button>
 
@@ -199,11 +199,11 @@ export default function App() {
                     onClick={() => setResultsSection('decisions')}
                     className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition ${
                       resultsSection === 'decisions'
-                        ? 'bg-slate-800 text-amber-400 border border-slate-700 shadow-sm'
-                        : 'text-slate-400 hover:text-slate-200'
+                        ? 'bg-violet-600/20 text-fuchsia-300 border border-fuchsia-500/40 shadow-sm'
+                        : 'text-slate-400 hover:text-slate-200 hover:bg-[#1a1c23] border border-transparent'
                     }`}
                   >
-                    <Award className="w-3.5 h-3.5" />
+                    <Award className="w-3.5 h-3.5 text-fuchsia-400" />
                     <span>Decisions ({data.decisions?.length || 0})</span>
                   </button>
 
@@ -211,11 +211,11 @@ export default function App() {
                     onClick={() => setResultsSection('risks')}
                     className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition ${
                       resultsSection === 'risks'
-                        ? 'bg-slate-800 text-rose-400 border border-slate-700 shadow-sm'
-                        : 'text-slate-400 hover:text-slate-200'
+                        ? 'bg-violet-600/20 text-rose-300 border border-rose-500/40 shadow-sm'
+                        : 'text-slate-400 hover:text-slate-200 hover:bg-[#1a1c23] border border-transparent'
                     }`}
                   >
-                    <ShieldAlert className="w-3.5 h-3.5" />
+                    <ShieldAlert className="w-3.5 h-3.5 text-rose-400" />
                     <span>Risks & Blockers ({data.risks?.length || 0})</span>
                   </button>
 
@@ -223,11 +223,11 @@ export default function App() {
                     onClick={() => setResultsSection('summary')}
                     className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition ${
                       resultsSection === 'summary'
-                        ? 'bg-slate-800 text-cyan-400 border border-slate-700 shadow-sm'
-                        : 'text-slate-400 hover:text-slate-200'
+                        ? 'bg-violet-600/20 text-violet-300 border border-violet-500/40 shadow-sm'
+                        : 'text-slate-400 hover:text-slate-200 hover:bg-[#1a1c23] border border-transparent'
                     }`}
                   >
-                    <FileText className="w-3.5 h-3.5" />
+                    <FileText className="w-3.5 h-3.5 text-violet-400" />
                     <span>Executive Briefing</span>
                   </button>
                 </div>
@@ -235,10 +235,10 @@ export default function App() {
                 {/* Instant Excel Download Button */}
                 <button
                   onClick={handleDirectExcelDownload}
-                  className="px-2.5 py-1 text-xs font-semibold text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 rounded-lg flex items-center gap-1 transition"
+                  className="px-2.5 py-1 text-xs font-semibold text-violet-300 bg-violet-600/15 hover:bg-violet-600/25 border border-violet-500/30 rounded-lg flex items-center gap-1 transition"
                   title="Export complete workbook to Excel"
                 >
-                  <FileSpreadsheet className="w-3.5 h-3.5" />
+                  <FileSpreadsheet className="w-3.5 h-3.5 text-violet-400" />
                   <span>Download .xlsx</span>
                 </button>
               </div>
@@ -249,21 +249,21 @@ export default function App() {
               <div className="space-y-5">
                 {/* Executive Summary Card (Shown in 'all' or 'summary') */}
                 {(resultsSection === 'all' || resultsSection === 'summary') && data.executiveSummary && (
-                  <div className="bg-gradient-to-r from-slate-900 via-slate-900 to-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl relative overflow-hidden">
-                    <div className="absolute top-0 right-0 w-64 h-full bg-emerald-500/5 blur-3xl pointer-events-none"></div>
+                  <div className="bg-gradient-to-r from-[#1a1c23] via-[#1a1c23] to-[#1e2029] border border-[#2b2d38] rounded-2xl p-5 shadow-xl relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-64 h-full bg-violet-600/10 blur-3xl pointer-events-none"></div>
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2">
                         <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-                          <Clock className="w-3.5 h-3.5 text-emerald-400" />
+                          <Clock className="w-3.5 h-3.5 text-violet-400" />
                           Executive Briefing & Synthesis
                         </h3>
                         {data.isLiveLLM && (
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-500/15 text-purple-300 border border-purple-500/30">
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-violet-600/20 text-violet-300 border border-violet-500/30">
                             Live {modelProvider.toUpperCase()}
                           </span>
                         )}
                       </div>
-                      <span className="text-[11px] font-semibold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/30">
+                      <span className="text-[11px] font-semibold text-emerald-400 bg-emerald-500/15 px-2.5 py-0.5 rounded-full border border-emerald-500/30">
                         {data.overallHealth || 'Sprint Healthy'}
                       </span>
                     </div>
@@ -323,8 +323,8 @@ export default function App() {
       />
 
       {/* Minimal Footer */}
-      <footer className="border-t border-slate-900 py-4 text-center text-xs text-slate-500">
-        PanScience Innovations (PSI) &bull; Technical Project Manager Evaluation &bull; MeetingPulse AI
+      <footer className="border-t border-[#2b2d38] py-4 text-center text-xs text-slate-500">
+        PanScience Innovations (PSI) &bull; Technical Project Manager Evaluation &bull; MeetingPulse AI (ClickUp 3.0 Theme)
       </footer>
     </div>
   );
