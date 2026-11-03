@@ -1,93 +1,89 @@
-# MeetingPulse AI – TPM Action Item, Decision & Jira Engine
+# ⚡ MeetingPulse AI
 
-[![React](https://img.shields.io/badge/React-18.3-61dafb?logo=react&logoColor=black)](https://react.dev/)
-[![Vite](https://img.shields.io/badge/Vite-5.4-646CFF?logo=vite&logoColor=white)](https://vitejs.dev/)
-[![Tailwind CSS](https://img.shields.io/badge/TailwindCSS-3.4-38B2AC?logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-emerald.svg)](https://opensource.org/licenses/MIT)
+> **AI Meeting Notes, Decisions & Jira Ticket Engine for Technical Project Managers**  
+> *Developed for PanScience Innovations (PSI) – Technical Project Manager Assignment (Part 11)*
 
-> **Built for PanScience Innovations (PSI) – Technical Project Manager Hiring Assignment (Part 11)**  
-> An intelligent, AI-powered productivity utility designed specifically for Technical Project Managers to transform messy, unstructured meeting transcripts and engineering discussions into prioritized action items, architectural decisions, technical risk registers, and Jira-ready deliverables.
-
----
-
-## 💡 Problem Statement & TPM Impact
-
-Technical Project Managers spend an average of **5–8 hours per week** manually listening to recorded meetings, combing through unstructured transcripts, extracting tasks, assigning owners, negotiating due dates, and entering Jira tickets. 
-
-**MeetingPulse AI solves this friction by:**
-1. **Zero-Friction Ingestion:** Ingests raw meeting transcripts, audio logs, or rough notes from Zoom, Google Meet, or Slack Huddles.
-2. **Deterministic & LLM Semantic Parsing:** Automatically isolates binding architectural decisions, assigns owners, determines task priority (P0/P1/P2), extracts target deadlines, and flags blockers.
-3. **Automated Tool Delivery:** Exports structured outputs directly into **Jira CSV** (bulk import), **Slack channel summaries**, and **Confluence markdown documentation** in a single click.
-4. **Guaranteed Execution:** Equipped with a dual-engine architecture (Live Gemini/OpenAI API + High-Precision Offline Heuristic NLP Engine) so it works instantly without API friction or subscription gates.
+[![React](https://img.shields.io/badge/React-18.3-blue.svg)](https://react.dev/)
+[![Vite](https://img.shields.io/badge/Vite-5.4-purple.svg)](https://vitejs.dev/)
+[![Tailwind CSS](https://img.shields.io/badge/TailwindCSS-3.4-38B2AC.svg)](https://tailwindcss.com/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 
 ---
 
-## ✨ Key Features
+## 📌 What is MeetingPulse AI?
 
-- **Decisions Log & Consensus Tracker:** Isolates binding technical choices, their architectural rationale, and affected cross-functional workstreams (AI/ML, Backend, DevOps, Frontend, QA).
-- **Interactive Action Item Matrix:**
-  - Auto-detected Assignees with domain roles.
-  - Priority classifications: **P0 (Critical/Blocker)**, **P1 (High)**, and **P2 (Medium)**.
-  - Due dates mapped to calendar days or sprint milestones.
-  - Jira ticket key generation (`AMA-101`, `AMA-102`, ...).
-  - Interactive status toggles (`To Do` ↔ `Done`) and inline task creation.
-- **Flagged Technical Risks & Dependencies:** Highlights critical operational risks (e.g., 3-week Google OAuth verification queues, AWS GPU instance quotas, container memory limits).
-- **Export Engine:**
-  - **Jira Cloud CSV:** Direct import into Jira (`Project Settings -> Import System`).
-  - **Slack Digest:** Formatted markdown ready to paste into `#proj-meeting-assistant-sync`.
-  - **Confluence / Notion Markdown:** Clean, executive-ready documentation format.
-  - **Raw JSON:** Standardized payload for automated CI/CD webhooks.
-- **Built-in PSI Scenario Presets:** Preloaded with the exact meetings from the PSI AI Meeting Assistant project:
-  - *Sprint 1 Kickoff (ASR Selection & Recording Bot Architecture)*
-  - *Mid-Sprint Risk Triage (AWS GPU Quotas & Recorder Leaks)*
-  - *Sprint 3 CEO Scope Expansion Alignment*
+**MeetingPulse AI** is a lightweight, high-productivity web tool built specifically for **Technical Project Managers (TPMs)**. 
+
+TPMs frequently spend 4 to 6 hours every week listening to recorded meetings, extracting action items, following up with engineers, and manually creating Jira tickets. MeetingPulse AI automates this entire process: paste or upload any meeting transcript, and get back prioritized tasks, formal architectural decisions, and exportable deliverables in seconds.
 
 ---
 
-## 🛠️ Architecture & AI Workflow
+## 🚀 Key Features (At a Glance)
 
-```mermaid
-flowchart TD
-    A[Unstructured Transcript / Meeting Notes] --> B[MeetingPulse Ingestion Engine]
-    B --> C{API Key Provided?}
-    C -->|Yes| D[Gemini 1.5 Flash API with Strict JSON Schema & Temp=0.2]
-    C -->|No / Offline| E[Deterministic Semantic NLP Engine with Regex & Heuristics]
-    D --> F[Structured JSON Payload]
-    E --> F[Structured JSON Payload]
-    F --> G[Interactive TPM Dashboard]
-    G --> H1[Jira CSV Export]
-    G --> H2[Slack Markdown Digest]
-    G --> H3[Confluence Documentation]
-    G --> H4[Sprint Backlog Tasks]
+- **📝 Automated Action Items:**
+  - Extracts clear task descriptions with assigned owners and engineering roles.
+  - Automatically sizes priority (**P0 Blocker, P1 High, P2 Medium**).
+  - Assigns target due dates and generates formatted Jira ticket IDs (`AMA-101`, `AMA-102`, etc.).
+  - Interactive checkboxes to mark items complete or add manual tasks inline.
+
+- **🏆 Architectural Decisions Log:**
+  - Isolates binding technical choices and architectural consensus from discussions.
+  - Documents the technical rationale and affected engineering workstreams (AI/ML, Backend, DevOps, Frontend, QA).
+
+- **⚠️ Risk & Blocker Flagging:**
+  - Automatically identifies external dependencies, API limits, and infrastructure bottlenecks.
+  - Pairs each risk with a recommended technical mitigation strategy.
+
+- **📊 Multi-Sheet Excel Export (`.xlsx`):**
+  - Download a formatted Microsoft Excel workbook with dedicated sheets for **Action Items**, **Decisions**, **Risks**, and **Executive Briefing**.
+
+- **🔗 1-Click Tool Integrations:**
+  - **Jira Cloud CSV:** Ready to import straight into your Jira project backlog.
+  - **Slack Digest:** Formatted markdown summary ready to paste into team channels.
+  - **Confluence Markdown:** Clean meeting minutes document for documentation wikis.
+  - **Raw JSON:** Standardized schema for webhooks and CI/CD pipelines.
+
+- **⚡ Real-Time Live LLM API + Offline Mode:**
+  - **Live Inference:** Connect your **Google Gemini** (`gemini-1.5-flash`), **OpenAI** (`gpt-4o-mini`), or **Groq** (`llama-3.3-70b`) API key for live real-time analysis.
+  - **Offline Local Engine:** Works instantly out of the box with zero setup, zero cost, and zero API keys needed.
+
+- **🧪 Preloaded PSI Scenarios:**
+  - **Sprint 1 Kickoff:** Deepgram vs Whisper ASR, AWS ECS recording bots, Google OAuth blockers.
+  - **Mid-Sprint Risk Triage:** AWS GPU instance quotas and Chromium memory leak triage.
+  - **Sprint 3 Scope Pivot:** CEO feature expansion trade-offs (Multi-language, Voice cloning, CRM).
+
+---
+
+## 🛠️ Tech Stack
+
+- **Frontend Framework:** React 18 + Vite
+- **Styling:** Tailwind CSS (Dark Mode SaaS aesthetic)
+- **Icons:** Lucide React
+- **Spreadsheet Generation:** SheetJS (`xlsx`)
+- **AI Engine:** Google Gemini API / OpenAI API / Groq + Local Deterministic Semantic Parser
+
+---
+
+## 💻 How to Run Locally
+
+### 1. Clone the repository
+```bash
+git clone https://github.com/ytsaxena/meetingpulse-ai.git
+cd meetingpulse-ai
 ```
 
-### AI Prompt Engineering Details
-- **System Prompt:** Configured as an elite PSI Technical Project Manager with strict guardrails against hallucinations.
-- **Temperature:** `0.2` (enforces deterministic extraction of dates, names, and explicit commitments).
-- **Schema Validation:** Strict adherence to structured JSON schemas matching Jira's native issue fields.
-
----
-
-## 🚀 Quick Start & Setup Instructions
-
-### Prerequisites
-- Node.js `v18.0.0` or higher
-- npm `v9.0.0` or higher
-
-### 1. Clone Repository & Install Dependencies
+### 2. Install dependencies
 ```bash
-git clone https://github.com/your-username/meetingpulse-ai.git
-cd meetingpulse-ai
 npm install
 ```
 
-### 2. Run the Development Server
+### 3. Start development server
 ```bash
 npm run dev
 ```
-Open your browser to `http://localhost:3000` (or the URL shown in your terminal).
+Open **`http://localhost:3000`** in your browser.
 
-### 3. Production Build
+### 4. Build for production
 ```bash
 npm run build
 npm run preview
@@ -95,18 +91,17 @@ npm run preview
 
 ---
 
-## 📋 Preloaded Demo Walkthrough
+## 📖 Quick Demo Walkthrough
 
-1. Open the application at `http://localhost:3000`.
-2. Notice the **PSI AI Meeting Assistant Sprint 1 Kickoff** is preloaded into the workspace.
-3. Click **"Extract Decisions, Actions & Jira Tickets"**.
-4. Review the auto-generated:
-   - **Executive Briefing & Synthesis**
-   - **Action Items Matrix** (with P0/P1/P2 priorities and Jira Keys)
-   - **Approved Architectural Decisions** (e.g. Deepgram Nova-2 vs Whisper, ECS Fargate recording bots)
-   - **Technical Risks & Blockers**
-5. Click **"Export Artifacts"** in the top navigation to view and download the **Jira CSV** or copy the **Slack Digest**.
-6. Switch to the **"AI Prompts & Logic"** tab to inspect the prompt architecture and schema guardrails.
+1. Open `http://localhost:3000`.
+2. Click any of the **PSI Scenario** buttons (e.g. *Sprint 1 Kickoff*).
+3. Click **"Generate Meeting Deliverables"**.
+4. Browse your deliverables using the clean tabs:
+   - **Action Items:** Review tasks, filter by priority, or click **"Export Excel"**.
+   - **Decisions:** Review locked architecture choices and team impacts.
+   - **Risks:** Check flagged P0 blockers and mitigations.
+5. Click **"All Exports"** in the top navigation to download **Jira CSV** or copy the **Slack Digest**.
+6. Click the model pill in the header to enter an API key or change models anytime.
 
 ---
 
@@ -114,32 +109,31 @@ npm run preview
 
 ```
 meetingpulse-ai/
-├── public/                 # Static assets & favicon
 ├── src/
 │   ├── components/
-│   │   ├── ActionItemsTable.jsx    # Interactive task matrix with filters & edit
-│   │   ├── DecisionsList.jsx       # Architectural decisions log
-│   │   ├── ExportModal.jsx         # Jira CSV, Slack, & Confluence exporter
-│   │   ├── Navbar.jsx              # Navigation header & actions
-│   │   ├── PromptInspector.jsx     # AI workflow & prompt architecture tab
-│   │   ├── RisksAndFollowUps.jsx   # Technical blockers & follow-up checklist
-│   │   └── TranscriptInput.jsx     # Text input, file upload & preset selector
+│   │   ├── ActionItemsTable.jsx   # Interactive task matrix with filters & Excel
+│   │   ├── DecisionsList.jsx      # Architectural decisions log
+│   │   ├── ExportModal.jsx        # Multi-format exporter (Excel, Jira, Slack, MD)
+│   │   ├── Navbar.jsx             # Clean header with quick actions
+│   │   ├── PromptInspector.jsx    # AI prompt engineering architecture tab
+│   │   ├── RisksAndFollowUps.jsx  # Technical blockers & follow-up checklist
+│   │   ├── SettingsModal.jsx      # Clean AI model & API key configuration
+│   │   └── TranscriptInput.jsx    # Clean transcript input with scenario chips
 │   ├── data/
-│   │   └── sampleTranscripts.js    # Pre-built PSI project meeting transcripts
+│   │   └── sampleTranscripts.js   # Preloaded PSI scenario transcripts
 │   ├── utils/
-│   │   └── nlpParser.js            # Dual-mode extraction engine (NLP + Gemini)
-│   ├── App.jsx                     # Core application layout & KPI state
-│   ├── index.css                   # Tailwind CSS styling
-│   └── main.jsx                    # React entrypoint
-├── index.html                      # HTML root
-├── package.json                    # Project dependencies & scripts
-├── tailwind.config.js              # Tailwind styling configuration
-├── vite.config.js                  # Vite bundler configuration
-└── README.md                       # Documentation & setup guide
+│   │   ├── excelExporter.js       # Multi-sheet .xlsx generation via SheetJS
+│   │   └── nlpParser.js           # Live LLM API + Offline semantic parser
+│   ├── App.jsx                    # Core application layout & tab navigation
+│   ├── index.css                  # Tailwind styles
+│   └── main.jsx                   # React entry point
+├── package.json
+└── README.md
 ```
 
 ---
 
 ## 👤 Author
-**Technical Project Manager Candidate**  
-PanScience Innovations (PSI) Hiring Assignment – November 2026
+**Candidate Submission for PanScience Innovations (PSI)**  
+Role: **Technical Project Manager**  
+Repository: [https://github.com/ytsaxena/meetingpulse-ai](https://github.com/ytsaxena/meetingpulse-ai)
