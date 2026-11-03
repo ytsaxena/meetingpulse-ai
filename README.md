@@ -3,10 +3,10 @@
 > **AI Meeting Notes, Decisions & Jira Ticket Engine for Technical Project Managers**  
 > *Developed for PanScience Innovations (PSI) – Technical Project Manager Assignment (Part 11)*
 
-[![React](https://img.shields.io/badge/React-18.3-blue.svg)](https://react.dev/)
-[![Vite](https://img.shields.io/badge/Vite-5.4-purple.svg)](https://vitejs.dev/)
-[![Tailwind CSS](https://img.shields.io/badge/TailwindCSS-3.4-38B2AC.svg)](https://tailwindcss.com/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
+[![Live Demo](https://img.shields.io/badge/🌐_Live_Demo-Click_to_Launch-emerald.svg?style=for-the-badge)](https://ytsaxena.github.io/meetingpulse-ai/)
+[![GitHub Repo](https://img.shields.io/badge/GitHub-Repository-blue.svg?style=for-the-badge&logo=github)](https://github.com/ytsaxena/meetingpulse-ai)
+
+### 🚀 **Live Working Web App:** [https://ytsaxena.github.io/meetingpulse-ai/](https://ytsaxena.github.io/meetingpulse-ai/)
 
 ---
 
