@@ -1,22 +1,22 @@
 // Intelligent Dual-Engine Parser: Live LLM API (Gemini / OpenAI / Groq) + Offline Deterministic Semantic Engine
 
 export async function processMeetingNotes(rawText, options = {}) {
-  const { apiKey, modelProvider = "gemini", modelName = "gemini-1.5-flash", onProgress } = options;
+  const { apiKey, modelProvider = "gemini", modelName, onProgress } = options;
 
   if (onProgress) onProgress("Preprocessing transcript & speaker tags...");
 
   // If user provided an API key and didn't select pure offline heuristic
   if (apiKey && apiKey.trim() && modelProvider !== "heuristic") {
     try {
-      if (onProgress) onProgress(`Connecting to ${modelProvider.toUpperCase()} (${modelName}) in real-time...`);
+      if (onProgress) onProgress(`Connecting to ${modelProvider.toUpperCase()} in real-time...`);
       const result = await callLiveLLM(rawText, apiKey.trim(), modelProvider, modelName, onProgress);
       if (onProgress) onProgress("Parsing and validating structured JSON schema...");
       return result;
     } catch (err) {
       console.warn("Live LLM API call error, falling back to local heuristic NLP engine:", err);
-      if (onProgress) onProgress(`API Notice: ${err.message}. Running intelligent local fallback...`);
+      if (onProgress) onProgress(`Notice: ${err.message}. Running intelligent local fallback...`);
       const fallbackResult = runDeterministicNLP(rawText);
-      fallbackResult.apiNotice = `Live API notice: ${err.message}. Displaying processed results via intelligent local fallback.`;
+      fallbackResult.apiNotice = `${modelProvider.toUpperCase()} Notice: ${err.message}. Showing processed deliverables via local fallback.`;
       return fallbackResult;
     }
   }
@@ -27,10 +27,11 @@ export async function processMeetingNotes(rawText, options = {}) {
 }
 
 // -------------------------------------------------------------
-// LIVE LLM API CALLER (Gemini, OpenAI, Groq)
+// LIVE LLM API CALLER (Gemini, Groq, OpenAI)
 // -------------------------------------------------------------
 async function callLiveLLM(rawText, apiKey, provider, modelName, onProgress) {
   const systemPrompt = `You are an elite Technical Project Manager AI Assistant for PanScience Innovations (PSI).
+You are designed to output structured JSON.
 Analyze the provided meeting transcript or engineering notes.
 Extract:
 1. "title": Crisp meeting title
@@ -61,10 +62,17 @@ Extract:
    - "mitigation": Pragmatic technical resolution plan
 7. "followUps": Array of strings for open inquiries or deferred items.
 
-CRITICAL: Return ONLY raw, valid JSON matching the schema above. No surrounding markdown backticks, no commentary.`;
+CRITICAL: Return ONLY raw, valid JSON adhering strictly to the schema above. No markdown code blocks, no backticks, no explanatory text.`;
 
+  // 1. GOOGLE GEMINI
   if (provider === "gemini") {
-    const targetModel = modelName || "gemini-1.5-flash";
+    // Sanitize model name: ensure valid Gemini model
+    let targetModel = modelName;
+    if (!targetModel || !targetModel.startsWith("gemini") || targetModel.includes("2.0-flash")) {
+      targetModel = "gemini-3.8-flash";
+    }
+
+    if (onProgress) onProgress(`Sending request to Gemini (${targetModel})...`);
     const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${apiKey}`;
 
     const res = await fetch(endpoint, {
@@ -90,23 +98,25 @@ CRITICAL: Return ONLY raw, valid JSON matching the schema above. No surrounding 
     if (!res.ok) {
       const errBody = await res.json().catch(() => ({}));
       const msg = errBody?.error?.message || `HTTP ${res.status} ${res.statusText}`;
-      throw new Error(`Gemini API Error: ${msg}`);
+      throw new Error(msg);
     }
 
     const data = await res.json();
     const candidateText = data.candidates?.[0]?.content?.parts?.[0]?.text;
-    if (!candidateText) throw new Error("No response content from Gemini");
+    if (!candidateText) throw new Error("No response candidates returned by Gemini");
 
-    return sanitizeAndEnrichJSON(candidateText);
+    return sanitizeAndEnrichJSON(candidateText, `Gemini (${targetModel})`);
   }
 
-  if (provider === "openai" || provider === "groq") {
-    const endpoint = provider === "groq"
-      ? "https://api.groq.com/openai/v1/chat/completions"
-      : "https://api.openai.com/v1/chat/completions";
+  // 2. GROQ CLOUD
+  if (provider === "groq") {
+    let targetModel = modelName;
+    if (!targetModel || (!targetModel.includes("llama") && !targetModel.includes("mixtral") && !targetModel.includes("gemma"))) {
+      targetModel = "llama-3.3-70b-versatile";
+    }
 
-    const defaultModel = provider === "groq" ? "llama-3.3-70b-versatile" : "gpt-4o-mini";
-    const targetModel = modelName || defaultModel;
+    if (onProgress) onProgress(`Sending request to Groq (${targetModel})...`);
+    const endpoint = "https://api.groq.com/openai/v1/chat/completions";
 
     const res = await fetch(endpoint, {
       method: "POST",
@@ -118,7 +128,48 @@ CRITICAL: Return ONLY raw, valid JSON matching the schema above. No surrounding 
         model: targetModel,
         messages: [
           { role: "system", content: systemPrompt },
-          { role: "user", content: `Meeting Notes to analyze:\n${rawText}` }
+          { role: "user", content: `Please analyze this meeting transcript and output JSON:\n\n${rawText}` }
+        ],
+        response_format: { type: "json_object" },
+        temperature: 0.2,
+        max_tokens: 3500
+      })
+    });
+
+    if (!res.ok) {
+      const errBody = await res.json().catch(() => ({}));
+      const msg = errBody?.error?.message || `HTTP ${res.status} ${res.statusText}`;
+      throw new Error(msg);
+    }
+
+    const data = await res.json();
+    const candidateText = data.choices?.[0]?.message?.content;
+    if (!candidateText) throw new Error("Empty completion from Groq");
+
+    return sanitizeAndEnrichJSON(candidateText, `Groq (${targetModel})`);
+  }
+
+  // 3. OPENAI
+  if (provider === "openai") {
+    let targetModel = modelName;
+    if (!targetModel || !targetModel.startsWith("gpt")) {
+      targetModel = "gpt-4o-mini";
+    }
+
+    if (onProgress) onProgress(`Sending request to OpenAI (${targetModel})...`);
+    const endpoint = "https://api.openai.com/v1/chat/completions";
+
+    const res = await fetch(endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model: targetModel,
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: `Please analyze this meeting transcript and output JSON:\n\n${rawText}` }
         ],
         response_format: { type: "json_object" },
         temperature: 0.2
@@ -128,20 +179,20 @@ CRITICAL: Return ONLY raw, valid JSON matching the schema above. No surrounding 
     if (!res.ok) {
       const errBody = await res.json().catch(() => ({}));
       const msg = errBody?.error?.message || `HTTP ${res.status} ${res.statusText}`;
-      throw new Error(`${provider.toUpperCase()} API Error: ${msg}`);
+      throw new Error(msg);
     }
 
     const data = await res.json();
     const candidateText = data.choices?.[0]?.message?.content;
-    if (!candidateText) throw new Error(`No response content from ${provider}`);
+    if (!candidateText) throw new Error("Empty response from OpenAI");
 
-    return sanitizeAndEnrichJSON(candidateText);
+    return sanitizeAndEnrichJSON(candidateText, `OpenAI (${targetModel})`);
   }
 
   throw new Error(`Unsupported model provider: ${provider}`);
 }
 
-function sanitizeAndEnrichJSON(rawJSONStr) {
+function sanitizeAndEnrichJSON(rawJSONStr, modelLabel = "Live LLM") {
   let cleaned = rawJSONStr.trim();
   if (cleaned.startsWith("```json")) {
     cleaned = cleaned.replace(/^```json\s*/, "").replace(/\s*```$/, "");
@@ -176,6 +227,7 @@ function sanitizeAndEnrichJSON(rawJSONStr) {
   };
 
   parsed.isLiveLLM = true;
+  parsed.liveModelName = modelLabel;
   return parsed;
 }
 
@@ -411,6 +463,7 @@ function runDeterministicNLP(text) {
     };
   }
 
+  // Dynamic Generic Semantic Parser for arbitrary text
   return parseArbitraryText(text);
 }
 
@@ -451,11 +504,11 @@ function parseArbitraryText(rawText) {
       continue;
     }
 
-    if (lower.includes("risk:") || lower.includes("blocker:") || lower.includes("bottleneck") || lower.includes("delay") || lower.includes("crash")) {
+    if (lower.includes("risk:") || lower.includes("blocker:") || lower.includes("bottleneck") || lower.includes("delay") || lower.includes("crash") || lower.includes("packet drop")) {
       risks.push({
         id: `rsk-${itemIndex++}`,
         risk: content.replace(/^(risk:\s*|blocker:\s*)/i, "").trim(),
-        impact: "Potential impact on delivery schedule or system stability",
+        impact: "Potential impact on delivery schedule or system performance",
         severity: lower.includes("blocker") || lower.includes("p0") ? "High" : "Medium",
         mitigation: "Assign owner to investigate and establish fallback pathway."
       });
@@ -467,6 +520,7 @@ function parseArbitraryText(rawText) {
       lower.includes("will ") ||
       lower.includes("to finalize") ||
       lower.includes("to build") ||
+      lower.includes("to deploy") ||
       lower.includes("to submit") ||
       lower.includes("to follow up") ||
       lower.includes("responsible for") ||
@@ -476,11 +530,11 @@ function parseArbitraryText(rawText) {
       const dueDate = dateMatch ? dateMatch[1] : "Sprint End";
 
       let category = "General";
-      if (lower.includes("backend") || lower.includes("api") || lower.includes("database") || lower.includes("oauth")) category = "Backend";
-      else if (lower.includes("ai") || lower.includes("model") || lower.includes("prompt") || lower.includes("wer") || lower.includes("diarization")) category = "AI/ML";
-      else if (lower.includes("frontend") || lower.includes("ui") || lower.includes("ux") || lower.includes("figma") || lower.includes("mockup")) category = "Frontend";
-      else if (lower.includes("qa") || lower.includes("test") || lower.includes("regression") || lower.includes("harness")) category = "QA";
-      else if (lower.includes("cloud") || lower.includes("aws") || lower.includes("docker") || lower.includes("k8s") || lower.includes("quota")) category = "DevOps";
+      if (lower.includes("backend") || lower.includes("api") || lower.includes("database") || lower.includes("oauth") || lower.includes("sqs") || lower.includes("webhook")) category = "Backend";
+      else if (lower.includes("ai") || lower.includes("model") || lower.includes("prompt") || lower.includes("vector") || lower.includes("pinecone") || lower.includes("diarization")) category = "AI/ML";
+      else if (lower.includes("frontend") || lower.includes("ui") || lower.includes("ux") || lower.includes("canvas") || lower.includes("react")) category = "Frontend";
+      else if (lower.includes("qa") || lower.includes("test") || lower.includes("regression") || lower.includes("e2e")) category = "QA";
+      else if (lower.includes("cloud") || lower.includes("aws") || lower.includes("ecs") || lower.includes("docker") || lower.includes("scaling")) category = "DevOps";
 
       let priority = "P2";
       if (lower.includes("p0") || lower.includes("critical") || lower.includes("blocker") || lower.includes("immediate")) priority = "P0";

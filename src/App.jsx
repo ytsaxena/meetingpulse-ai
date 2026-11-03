@@ -21,7 +21,7 @@ export default function App() {
   const [progressStatus, setProgressStatus] = useState('');
   const [apiKey, setApiKey] = useState('');
   const [modelProvider, setModelProvider] = useState('gemini');
-  const [modelName, setModelName] = useState('gemini-1.5-flash');
+  const [modelName, setModelName] = useState('gemini-3.8-flash');
   const [isExportOpen, setIsExportOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
@@ -30,7 +30,12 @@ export default function App() {
     const savedKey = localStorage.getItem('meetingpulse_llm_api_key');
     const savedProvider = localStorage.getItem('meetingpulse_llm_provider');
     if (savedKey) setApiKey(savedKey);
-    if (savedProvider) setModelProvider(savedProvider);
+    if (savedProvider) {
+      setModelProvider(savedProvider);
+      if (savedProvider === 'gemini') setModelName('gemini-3.8-flash');
+      else if (savedProvider === 'groq') setModelName('llama-3.3-70b-versatile');
+      else if (savedProvider === 'openai') setModelName('gpt-4o-mini');
+    }
 
     // Initial process
     handleProcess(SAMPLE_TRANSCRIPTS.psiSprint1Kickoff.text);

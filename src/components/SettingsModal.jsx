@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { X, Key, ShieldCheck, CheckCircle2, Eye, EyeOff, Sparkles, Cpu } from 'lucide-react';
 
 export default function SettingsModal({
@@ -18,9 +18,9 @@ export default function SettingsModal({
   const handleProviderSelect = (provider) => {
     setModelProvider(provider);
     localStorage.setItem('meetingpulse_llm_provider', provider);
-    if (provider === 'gemini') setModelName('gemini-1.5-flash');
-    else if (provider === 'openai') setModelName('gpt-4o-mini');
+    if (provider === 'gemini') setModelName('gemini-3.8-flash');
     else if (provider === 'groq') setModelName('llama-3.3-70b-versatile');
+    else if (provider === 'openai') setModelName('gpt-4o-mini');
   };
 
   const handleKeySave = (val) => {
@@ -69,7 +69,39 @@ export default function SettingsModal({
                   <span className="font-bold text-xs">Google Gemini</span>
                   <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
                 </div>
-                <span className="text-[10px] text-slate-400 mt-1">Recommended &bull; Fast</span>
+                <span className="text-[10px] text-slate-400 mt-1">gemini-3.8-flash &bull; Live API</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleProviderSelect('groq')}
+                className={`p-3 rounded-xl border text-left transition flex flex-col justify-between ${
+                  modelProvider === 'groq'
+                    ? 'bg-emerald-500/10 border-emerald-500 text-white'
+                    : 'bg-slate-950/60 border-slate-800 text-slate-400 hover:border-slate-700'
+                }`}
+              >
+                <div className="flex items-center justify-between w-full">
+                  <span className="font-bold text-xs">Groq Cloud</span>
+                  <span className="text-[10px] text-emerald-400 font-bold">Llama 3.3 70B</span>
+                </div>
+                <span className="text-[10px] text-slate-400 mt-1">Sub-second inference</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleProviderSelect('openai')}
+                className={`p-3 rounded-xl border text-left transition flex flex-col justify-between ${
+                  modelProvider === 'openai'
+                    ? 'bg-emerald-500/10 border-emerald-500 text-white'
+                    : 'bg-slate-950/60 border-slate-800 text-slate-400 hover:border-slate-700'
+                }`}
+              >
+                <div className="flex items-center justify-between w-full">
+                  <span className="font-bold text-xs">OpenAI</span>
+                  <span className="text-[10px] text-slate-400">GPT-4o mini</span>
+                </div>
+                <span className="text-[10px] text-slate-400 mt-1">Structured JSON output</span>
               </button>
 
               <button
@@ -87,38 +119,6 @@ export default function SettingsModal({
                 </div>
                 <span className="text-[10px] text-slate-400 mt-1">Zero Key &bull; Instant</span>
               </button>
-
-              <button
-                type="button"
-                onClick={() => handleProviderSelect('openai')}
-                className={`p-3 rounded-xl border text-left transition flex flex-col justify-between ${
-                  modelProvider === 'openai'
-                    ? 'bg-emerald-500/10 border-emerald-500 text-white'
-                    : 'bg-slate-950/60 border-slate-800 text-slate-400 hover:border-slate-700'
-                }`}
-              >
-                <div className="flex items-center justify-between w-full">
-                  <span className="font-bold text-xs">OpenAI</span>
-                  <span className="text-[10px] text-slate-400">GPT-4o</span>
-                </div>
-                <span className="text-[10px] text-slate-400 mt-1">API Key required</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleProviderSelect('groq')}
-                className={`p-3 rounded-xl border text-left transition flex flex-col justify-between ${
-                  modelProvider === 'groq'
-                    ? 'bg-emerald-500/10 border-emerald-500 text-white'
-                    : 'bg-slate-950/60 border-slate-800 text-slate-400 hover:border-slate-700'
-                }`}
-              >
-                <div className="flex items-center justify-between w-full">
-                  <span className="font-bold text-xs">Groq Cloud</span>
-                  <span className="text-[10px] text-slate-400">Llama 3.3</span>
-                </div>
-                <span className="text-[10px] text-slate-400 mt-1">Sub-second inference</span>
-              </button>
             </div>
           </div>
 
@@ -127,13 +127,41 @@ export default function SettingsModal({
             <div className="space-y-1">
               <label className="text-xs font-semibold text-slate-300">Gemini Model:</label>
               <select
-                value={modelName}
+                value={modelName.startsWith('gemini') ? modelName : 'gemini-3.8-flash'}
                 onChange={(e) => setModelName(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500"
+                className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500 font-mono"
               >
-                <option value="gemini-1.5-flash">gemini-1.5-flash (Fast & Deterministic)</option>
-                <option value="gemini-1.5-pro">gemini-1.5-pro (In-depth analysis)</option>
-                <option value="gemini-2.0-flash">gemini-2.0-flash (Latest Preview)</option>
+                <option value="gemini-3.8-flash">models/gemini-3.8-flash (Latest & Recommended)</option>
+                <option value="gemini-2.5-flash">models/gemini-2.5-flash</option>
+                <option value="gemini-1.5-flash-latest">models/gemini-1.5-flash-latest</option>
+              </select>
+            </div>
+          )}
+
+          {modelProvider === 'groq' && (
+            <div className="space-y-1">
+              <label className="text-xs font-semibold text-slate-300">Groq Model:</label>
+              <select
+                value={modelName.includes('llama') ? modelName : 'llama-3.3-70b-versatile'}
+                onChange={(e) => setModelName(e.target.value)}
+                className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500 font-mono"
+              >
+                <option value="llama-3.3-70b-versatile">llama-3.3-70b-versatile (Recommended)</option>
+                <option value="llama-3.1-8b-instant">llama-3.1-8b-instant (Fastest)</option>
+              </select>
+            </div>
+          )}
+
+          {modelProvider === 'openai' && (
+            <div className="space-y-1">
+              <label className="text-xs font-semibold text-slate-300">OpenAI Model:</label>
+              <select
+                value={modelName.startsWith('gpt') ? modelName : 'gpt-4o-mini'}
+                onChange={(e) => setModelName(e.target.value)}
+                className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500 font-mono"
+              >
+                <option value="gpt-4o-mini">gpt-4o-mini</option>
+                <option value="gpt-4o">gpt-4o</option>
               </select>
             </div>
           )}
@@ -154,7 +182,13 @@ export default function SettingsModal({
               <div className="relative">
                 <input
                   type={showKey ? "text" : "password"}
-                  placeholder={`Paste your ${modelProvider.toUpperCase()} key here...`}
+                  placeholder={
+                    modelProvider === 'gemini'
+                      ? "AIzaSy... (Gemini API Key)"
+                      : modelProvider === 'groq'
+                      ? "gsk_... (Groq API Key)"
+                      : "sk-... (OpenAI API Key)"
+                  }
                   value={apiKey}
                   onChange={(e) => handleKeySave(e.target.value)}
                   className="w-full bg-slate-950 border border-slate-800 rounded-lg pl-3 pr-10 py-2 text-xs text-white placeholder-slate-600 font-mono focus:outline-none focus:border-emerald-500"
@@ -173,7 +207,7 @@ export default function SettingsModal({
           <div className="p-3 bg-slate-950/70 border border-slate-800 rounded-xl text-[11px] text-slate-400 flex items-start gap-2">
             <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
             <span>
-              Your API key is stored strictly in your browser's private local storage. If no key is entered, MeetingPulse AI seamlessly uses its high-accuracy local semantic parser.
+              Keys are stored securely in your browser's private local storage. If no key is entered or if the API limit is reached, MeetingPulse AI seamlessly uses its high-accuracy local NLP fallback.
             </span>
           </div>
         </div>
